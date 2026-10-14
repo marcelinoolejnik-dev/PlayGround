@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TWO CHANCES — Noir 2.5D Fighter | GDD + Godot Architecture</title>
+<style>
+  :root{--bg:#0a0a0a;--paper:#111;--ink:#f5f5f5;--muted:#9a9a9a;--line:#2a2a2a;--red:#e10600;--card:#141414}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:Georgia,"Times New Roman",serif;line-height:1.6}
+  .topbar{border-bottom:1px solid var(--line);padding:12px 20px;display:flex;gap:12px;align-items:center;justify-content:space-between;max-width:1100px;margin:0 auto}
+  .brand{font-family:Impact,Haettenschweiler,"Arial Narrow Bold",sans-serif;letter-spacing:3px;font-size:18px}
+  .brand span{color:var(--red)}
+  .badge{font-family:Arial,sans-serif;font-size:11px;letter-spacing:2px;border:1px solid var(--line);padding:6px 10px;border-radius:999px;color:var(--muted)}
+  .hero{max-width:1100px;margin:0 auto;padding:56px 20px 24px;display:grid;grid-template-columns:1.2fr .8fr;gap:28px}
+  @media(max-width:800px){.hero{grid-template-columns:1fr;padding-top:32px}}
+  h1{font-family:Impact,Haettenschweiler,sans-serif;font-size:64px;line-height:.95;margin:0;letter-spacing:1px}
+  @media(max-width:800px){h1{font-size:44px}}
+  h1 .red{color:var(--red)}
+  h1 .outline{color:transparent;-webkit-text-stroke:2px #fff}
+  .sub{color:var(--muted);font-style:italic;font-size:18px;margin:14px 0}
+  .cta-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+  .btn{font-family:Arial,sans-serif;font-size:13px;letter-spacing:1px;padding:12px 18px;border-radius:4px;border:1px solid #fff;text-decoration:none;color:#000;background:#fff;font-weight:700}
+  .btn.ghost{background:transparent;color:#fff}
+  .poster{background:linear-gradient(180deg,#1a1a1a,#000);border:1px solid var(--line);border-radius:12px;padding:22px;position:relative;overflow:hidden}
+  .poster:after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent 0 3px,rgba(255,255,255,.03) 3px 4px);pointer-events:none}
+  .versus{display:flex;align-items:center;justify-content:space-between;text-align:center}
+  .fig{width:110px;height:150px;background:#000;border:1px solid #333;border-radius:8px;display:flex;align-items:flex-end;justify-content:center;position:relative}
+  .fig i{font-style:normal;font-size:64px;filter:grayscale(1) contrast(1.4)}
+  .fig small{position:absolute;bottom:6px;font-family:Arial,sans-serif;font-size:10px;letter-spacing:2px;color:var(--muted)}
+  .vs{font-family:Impact,sans-serif;font-size:52px;color:var(--red)}
+  .ammo{display:flex;gap:8px;justify-content:center;margin-top:14px;font-family:Arial,sans-serif;font-size:12px;color:var(--muted)}
+  .pill{border:1px solid var(--line);padding:6px 10px;border-radius:999px}
+  .pill b{color:#fff}
+  main{max-width:1100px;margin:0 auto;padding:10px 20px 80px}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:22px}
+  @media(max-width:800px){.grid{grid-template-columns:1fr}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px}
+  .card h2{font-family:Impact,sans-serif;letter-spacing:2px;font-size:20px;margin:0 0 10px;border-left:4px solid var(--red);padding-left:10px}
+  .card h3{font-family:Arial,sans-serif;font-size:12px;letter-spacing:2px;color:var(--muted);margin:18px 0 8px}
+  .card p,.card li{font-size:15px;color:#ddd}
+  .card ul{padding-left:18px;margin:8px 0}
+  code,kbd{font-family:ui-monospace,Consolas,monospace;background:#000;border:1px solid #333;border-radius:4px;padding:1px 6px;font-size:13px;color:#fff}
+  pre{background:#000;border:1px solid #333;border-radius:8px;padding:14px;overflow:auto;font-size:12.5px;line-height:1.5;color:#e8e8e8}
+  pre .c{color:#888} pre .k{color:#fff;font-weight:700} pre .s{color:#ff6b61}
+  .tree{font-family:ui-monospace,monospace;font-size:13px;background:#000;border:1px solid #333;border-radius:8px;padding:14px;white-space:pre;overflow:auto}
+  table{width:100%;border-collapse:collapse;font-family:Arial,sans-serif;font-size:13px;margin-top:8px}
+  th,td{border:1px solid #333;padding:8px;text-align:left}
+  th{background:#000;color:#fff;letter-spacing:1px}
+  td{color:#ddd}
+  .phase{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}
+  @media(max-width:600px){.phase{grid-template-columns:1fr}}
+  .phase div{border:1px solid #333;border-radius:8px;padding:12px;background:#000}
+  .phase strong{font-family:Arial,sans-serif;letter-spacing:1px;font-size:12px}
+  .lethal strong{color:var(--red)} .brawl strong{color:#fff}
+  footer{border-top:1px solid var(--line);padding:20px;text-align:center;color:var(--muted);font-family:Arial,sans-serif;font-size:12px;letter-spacing:1px}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="brand">TWO <span>CHANCES</span> — NOIR FIGHTER</div>
+  <div class="badge">GODOT 4 • 2.5D • DESKTOP 2D</div>
+</div>
+
+<header class="hero">
+  <div>
+    <h1>ONE BULLET.<br><span class="outline">ONE BLADE.</span><br><span class="red">NO MERCY.</span></h1>
+    <p class="sub">A highly stylized 2.5D fighting game. Film Noir / Sin City monochrome, sharp-suited assassins, constrained to a 2D fighting plane with 3D models.</p>
+    <div class="cta-row">
+      <a class="btn" href="#architecture">VIEW ARCHITECTURE</a>
+      <a class="btn ghost" href="#statemachine">STATE MACHINE</a>
+      <a class="btn ghost" href="#balance">BALANCE + FEEL</a>
+    </div>
+    <div class="ammo"><span class="pill">LETHAL PHASE: <b>1× BULLET + 1× STAB</b></span><span class="pill">THEN: <b>BARE-HAND BRAWL</b></span></div>
+  </div>
+  <div class="poster" aria-hidden="true">
+    <div class="versus">
+      <div class="fig"><i>🤵</i><small>P1 — WHITE SUIT</small></div>
+      <div class="vs">VS</div>
+      <div class="fig"><i>🕴️</i><small>P2 — BLACK SUIT</small></div>
+    </div>
+    <p style="font-family:Arial,sans-serif;font-size:12px;color:#bbb;letter-spacing:1px;text-align:center;margin:16px 0 0">LAND THE SHOT OR THE LUNGE → CINEMATIC EXECUTION. MISS BOTH → FISTS, HEALTH BAR, KNOCKOUT.</p>
+  </div>
+</header>
+
+<main>
+  <div class="grid">
+    <section class="card">
+      <h2>1 — VISUALS / THEME / ENGINE</h2>
+      <p><b>Engine:</b> Godot 4. 2D gameplay logic with 3D rendering for 2.5D. Use <code>Node3D</code> scene root + <code>CharacterBody3D</code> players locked to X/Y plane (Z fixed), orthographic or narrow-FOV <code>Camera3D</code> side view. UI in <code>CanvasLayer</code>.</p>
+      <h3>ART DIRECTION</h3>
+      <ul>
+        <li>High-contrast B&amp;W: unshaded + rim light, heavy fog, venetian-blind shadows.</li>
+        <li>Only color allowed: blood red <code>#E10600</code> + muzzle flash white.</li>
+        <li>Suits: black vs white to read instantly at distance.</li>
+        <li>Rain particles, wet reflective floor (<code>Reflector</code> or SSR-lite shader), film grain overlay.</li>
+      </ul>
+      <h3>2.5D CONSTRAINT</h3>
+      <ul>
+        <li>Lock <code>position.z = 0</code>, lock rotation, move only on X (walk) + Y (jump).</li>
+        <li>3D hitboxes: <code>Area3D</code> with thin box shapes, but compare only X distance.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>2 — CORE LOOP: TWO CHANCES</h2>
+      <div class="phase">
+        <div class="lethal"><strong>LETHAL PHASE (TENSION)</strong><p>Each round starts with <code>has_bullet=true</code>, <code>has_knife=true</code>. Gunshot or knife lunge = <b>instant kill</b> → cinematic execution ends round.</p></div>
+        <div class="brawl"><strong>BRAWL PHASE (CLASSIC)</strong><p>Miss / blocked / dodged = resource lost. When both lethal chances are gone → fists, kicks, blocks, grabs + classic health bar to KO.</p></div>
+      </div>
+      <h3>RULES</h3>
+      <ul>
+        <li>Bullet: hitscan ray, can be dodged (i-frames) or blocked only by perfect parry.</li>
+        <li>Knife lunge: short dash + stab, whiffs if out of range or sidestepped.</li>
+        <li>Penalty: empty gun + lost knife force unarmed <code>BRAWL_STATE</code>.</li>
+        <li>Asymmetric tension: if P1 misses but P2 still has bullet, P1 must bait.</li>
+      </ul>
+    </section>
+  </div>
+
+  <div class="grid">
+    <section class="card" id="architecture">
+      <h2>3 — GODOT NODE ARCHITECTURE</h2>
+      <h3>MAIN COMBAT SCENE</h3>
+      <div class="tree">Main (Node3D) — CombatRoot.gd
+├── WorldEnvironment (B/W sky, fog, grain)
+├── DirectionalLight3D (key) + rim lights
+├── Camera3D (side, orthographic size 6)
+├── Floor (StaticBody3D + reflective plane)
+├── Walls (2× StaticBody3D — arena bounds)
+├── Player1 (instance: Assassin.tscn, facing right)
+├── Player2 (instance: Assassin.tscn, facing left)
+├── BulletTracer (pooled MeshInstance3D + particles)
+├── HitStop + CameraShake (Camera logic)
+└── UI (CanvasLayer)
+    ├── LethalPips (bullet/knife icons ×2 players)
+    ├── HealthBars (hidden until Brawl)
+    ├── RoundTimer + AnnouncementLabel
+    └── GrainOverlay (TextureRect, film grain)</div>
+      <h3>PLAYER (ASSASSIN.TSCN)</h3>
+      <div class="tree">Assassin (CharacterBody3D) — player_controller.gd
+├── Model (Node3D — Godot 3D suit model)
+│   ├── Armature (Skeleton3D + AnimationPlayer)
+│   └── SuitMeshes (MeshInstance3D…)
+├── GunMuzzle (Marker3D)
+├── KnifeTip (Marker3D)
+├── LethalHitbox (Area3D — instant kill)
+│   └── CollisionShape3D (thin box, disabled by default)
+├── BrawlHitbox (Area3D — fists/feet)
+├── Hurtbox (Area3D — receives hits)
+├── DodgeGhost (particles for i-frames)
+└── StateMachine (Node — state_machine.gd)</div>
+      <p>Why this split: <code>LethalHitbox</code> vs <code>BrawlHitbox</code> separates instant-kill collision from chip damage. Only one is armed at a time.</p>
+    </section>
+
+    <section class="card" id="statemachine">
+      <h2>4 — STATE MACHINE (GDSCRIPT)</h2>
+      <p>Top-level phases: <code>LETHAL</code> → <code>BRAWL</code> is one-way per round. Sub-states handle movement + attacks.</p>
+<pre><span class="c"># player_controller.gd — Godot 4, CharacterBody3D</span>
+<span class="k">extends</span> CharacterBody3D
+<span class="k">enum</span> Phase { LETHAL, BRAWL }
+<span class="k">enum</span> State { IDLE, WALK, JUMP, DODGE, GUNSHOT,
+  KNIFE_LUNGE, PUNCH, KICK, BLOCK, GRAB, HIT, DEAD }
+
+<span class="k">var</span> phase: Phase = Phase.LETHAL
+<span class="k">var</span> state: State = State.IDLE
+<span class="k">var</span> has_bullet := <span class="k">true</span>
+<span class="k">var</span> has_knife := <span class="k">true</span>
+<span class="k">var</span> health := 100
+<span class="k">var</span> facing := 1.0
+@onready <span class="k">var</span> lethal_box: Area3D = $LethalHitbox
+@onready <span class="k">var</span> brawl_box: Area3D = $BrawlHitbox
+
+<span class="k">func</span> try_gunshot() -&gt; <span class="k">void</span>:
+  <span class="k">if</span> phase != Phase.LETHAL <span class="k">or not</span> has_bullet: <span class="k">return</span>
+  has_bullet = <span class="k">false</span>; _enter(State.GUNSHOT)
+  $AnimationPlayer.play(<span class="s">"gunshot"</span>)
+  <span class="k">await</span> get_tree().create_timer(0.12).timeout
+  _fire_hitscan()  <span class="c"># whiff -&gt; bullet gone</span>
+  _check_phase_shift()
+
+<span class="k">func</span> try_knife() -&gt; <span class="k">void</span>:
+  <span class="k">if</span> phase != Phase.LETHAL <span class="k">or not</span> has_knife: <span class="k">return</span>
+  has_knife = <span class="k">false</span>; _enter(State.KNIFE_LUNGE)
+  velocity.x = facing * 14.0  <span class="c"># committed lunge</span>
+  lethal_box.monitoring = <span class="k">true</span>
+  <span class="k">await</span> get_tree().create_timer(0.28).timeout
+  lethal_box.monitoring = <span class="k">false</span>
+  _check_phase_shift()
+
+<span class="k">func</span> _check_phase_shift() -&gt; <span class="k">void</span>:
+  <span class="k">if not</span> has_bullet <span class="k">and not</span> has_knife \
+  <span class="k">and</span> phase == Phase.LETHAL:
+    phase = Phase.BRAWL
+    UI.show_health_bars()  <span class="c"># tension breaks</span>
+
+<span class="k">func</span> _on_lethal_hit(victim) -&gt; <span class="k">void</span>:
+  Game.execute_cinematic(<span class="k">self</span>, victim)  <span class="c"># round over</span>
+  victim.die_cinematic()</pre>
+    </section>
+  </div>
+
+  <div class="grid">
+    <section class="card">
+      <h2>5 — HITBOX / HURTBOX LOGIC</h2>
+      <h3>INSTANT-KILL VS CHIP DAMAGE</h3>
+      <table>
+        <tr><th>Attack</th><th>Box</th><th>Startup / Active / Recover</th><th>Result</th></tr>
+        <tr><td>Gunshot</td><td>RayCast3D 14m</td><td>12f / 1f / 30f</td><td>Death. Dodge i-frames or cover avoid.</td></tr>
+        <tr><td>Knife lunge</td><td>LethalHitbox</td><td>10f / 8f / 22f</td><td>Death. Whiff = punishable.</td></tr>
+        <tr><td>Jab / Cross</td><td>BrawlHitbox</td><td>6f / 3f / 12f</td><td>6 dmg</td></tr>
+        <tr><td>Heavy kick</td><td>BrawlHitbox</td><td>14f / 4f / 24f</td><td>12 dmg</td></tr>
+        <tr><td>Grab</td><td>BrawlHitbox</td><td>9f / 2f / 26f</td><td>15 dmg, beats block</td></tr>
+      </table>
+<pre><span class="c"># lethal wins over brawl; layer discipline matters</span>
+collision_layer = 2  <span class="c"># this player body</span>
+LethalHitbox:  monitorable=<span class="k">false</span>, mask=4 (foe hurt)
+BrawlHitbox:   mask=4, armed <span class="k">only</span> in BRAWL phase
+Hurtbox(Area3D): layer=4 — <span class="k">func</span> _on_area_entered(area):
+  <span class="k">if</span> area.is_in_group(<span class="s">"lethal"</span>) <span class="k">and</span> <span class="k">not</span> is_dodging(): die_cinematic()
+  <span class="k">elif</span> area.is_in_group(<span class="s">"brawl"</span>): take_damage(area.damage)</pre>
+    </section>
+
+    <section class="card" id="balance">
+      <h2>6 — BALANCE &amp; FEEL</h2>
+      <h3>MAKE LETHAL FAIR BUT TENSE</h3>
+      <ul>
+        <li><b>Movement:</b> walk 4.2 m/s, dash 9 m/s (16f, 8f i-frames), jump 0.55s air. Slightly slow walk = every step feels committed.</li>
+        <li><b>Dodge is the core:</b> 200ms sidestep flicker (B&amp;W ghost), 8f invuln, 24f recovery. Beats gun + knife if timed, loses to grab/baits.</li>
+        <li><b>Gun:</b> 12f draw sound cue + white glint before fire. 30f holster whiff punish. Range full screen but 1px-wide ray — crouch-dodge works.</li>
+        <li><b>Knife:</b> audible <i>shing</i> 10f startup, lunge locked direction. Whiff slides past opponent → back-throw punish.</li>
+        <li><b>Mind games:</b> empty gun can still be <i>aimed</i> (fake) once — keeps bluff alive after miss.</li>
+        <li><b>Juice:</b> hitstop 120ms on lethal connect, zoom punch + time-freeze 0.3s, then ink-splash execution. Whiff: loud echo + long silence.</li>
+        <li><b>Brawl transition:</b> heartbeat stops, jazz kicks in, health bars slam on screen. 100 HP, 3-round sets keep brawls snappy (~40s).</li>
+      </ul>
+      <h3>FRAME-DATA STARTER</h3>
+      <p>60fps baseline. Dodge 8/8/24 (startup/active/recover). Jab 6/3/12 (+2 on block). Block holds, chip 0 except heavy 1. Grab 9f beats block, loses to jump. Tune so <b>dodge &gt; lethal &gt; block &gt; grab &gt; dodge</b>.</p>
+    </section>
+  </div>
+</main>
+
+<footer>TWO CHANCES • GODOT 4 2.5D (3D MODELS / 2D PLANE) • BLACK/WHITE NOIR • BUILT STATIC — READY FOR CAPTURE</footer>
+</body>
+</html>
